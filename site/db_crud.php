@@ -1,11 +1,8 @@
 <?php 
-	function db_add($link_, $table_, $fields_, $values_)
-	{
-		function a2sql($array__, $q__)
-		{
+	function db_add($link_, $table_, $fields_, $values_) {
+		function a2sql($array__, $q__) {
 			$tmp__ = "(";
-			foreach ($array__ as $val) 
-			{
+			foreach ($array__ as $val) {
 				$tmp__ .= $q__ . $val . $q__ . ", ";
 			}
 			$tmp__ = substr($tmp__, 0, -2);
@@ -19,35 +16,40 @@
 		return $res;
 	}
 
-	function db_read($link_, $table_, $fields_, $num_)
-	{
-		$sql_ 	= "SELECT * FROM " . $table_;
+	function db_read($link_, $table_, $fields_, $start_, $num_)	{
+		$sql_ 	= "SELECT * FROM " . $table_ . " LIMIT " . $start_ . ', ' . $num_;
 		$res_ 	= $link_->query($sql_);
 		$cols_	= count($fields_);
 
-		
-		if ($res_->num_rows > 0) 
-		{
+		if ($res_->num_rows > 0) {
 			
-			while($row = $res_->fetch_assoc()) 
-			{
+			while($row = $res_->fetch_assoc()) {
 				echo '<tr>'	;
-					for($i = 0; $i < $cols_; $i++)
-					{
+					for($i = 0; $i < $cols_; $i++) {
 						echo '<th class="font-weight-normal">';
 							echo $row[$fields_[$i]];
 						echo '</th>';
 					}
 				echo '</tr>';
-				
 			}
+			$res_->close();
 		} 
-		else 
-		{
-			echo "Database is empty!";
-		}
+		else {
+			echo "Wrong request or database is empty!";
+		}	
+
+	}
+
+	function db_count($link_, $table_)	{
+		$sql_ 	= "SELECT id FROM " . $table_;
 		
 
+		if ($res_ = $link_->query($sql_)) {
+			$rows_ = $res_->num_rows;
+			$res_->close();
+		}
+
+		return $rows_;		
 
 	}
 

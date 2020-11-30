@@ -21,7 +21,7 @@
 
 	// Create table
 	$sql	 = 	"CREATE TABLE IF NOT EXISTS " . $table;
-	$sql	.=	" (id INT(6) NOT NULL AUTO_INCREMENT PRIMARY KEY, ";
+	$sql	.=	" (id INT(6) NOT NULL AUTO_INCREMENT PRIMARY KEY, ";			// id
 	$sql	.=	$fields[0] . " VARCHAR(30) NOT NULL, "	;						// fname	
 	$sql	.=	$fields[1] . " VARCHAR(30) NOT NULL, "	;						// lname
 	$sql	.=	$fields[2] . " VARCHAR(4), "			;						// vocative

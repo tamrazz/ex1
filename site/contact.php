@@ -117,7 +117,6 @@
 		
 	</div>
 
-	<hr>
 
 	<script src="../bootstrap-4.5.3-dist/js/bootstrap.bundle.min.js"></script>
 </body>
