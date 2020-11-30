@@ -1,0 +1,3 @@
+user 		= root
+password 	= 1
+email		= user@email.com
