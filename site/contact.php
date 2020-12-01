@@ -113,11 +113,9 @@
 					<button type="submit" class="btn btn-primary">Send message</button>
 				</div>
 			</div>
+			
 		</form>
 		
 	</div>
-
-
-	<script src="../bootstrap-4.5.3-dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

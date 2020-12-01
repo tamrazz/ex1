@@ -26,7 +26,8 @@
 			$num_pages = ceil($total_rows / $rows_per_page);
 			$cur_page = get_curpage($num_pages);
 			$db_start = ($cur_page - 1) * $rows_per_page;
-			$print_fields = array('id', $fields[0], $fields[1], $fields[3], $fields[7]);
+			$print_fields = array('id', $fields[0], $fields[1], $fields[3], $fields[7], $fields[8]);
+			$cols = count($print_fields);
 
 			function get_curpage($max_, $min_ = 1) {
 				$my_get = $_GET['page'];
@@ -71,33 +72,45 @@
 
 		?>
 
+		<!-- TABLE -->
 		<table class="table table-hover">
 
 			<thead class="thead-dark" align="center">
 				<tr>
-					<th scope="col">ID</th>
-					<th scope="col">First Name</th>
-					<th scope="col">Last Name</th>
-					<th scope="col">Email</th>
-					<th scope="col">Message</th>
+					<?php
+						for($i = 0; $i < $cols; $i++) {
+							echo '<th scope="col">';
+								echo $print_fields[$i];
+							echo '</th>';
+						}
+					?>
 				</tr>
 			</thead>
 
 			<?php 
-				db_read($link, $table, $print_fields, $db_start, $rows_per_page);
+				$rows_readed = db_read($link, $table, $db_start, $rows_per_page);
+				while($row = $rows_readed->fetch_assoc()) {
+					echo '<tr>'	;
+						for($i = 0; $i < $cols; $i++) {
+							echo '<th class="font-weight-normal">';
+								echo $row[$print_fields[$i]];
+							echo '</th>';
+						}
+					echo '</tr>';
+				}
+				$rows_readed->close();
 			?>
 		</table>
 
+		<!-- PAGINATION -->
 		<div class="container-fluid">
 			<nav aria-label="...">
 				<ul class="pagination justify-content-center">
-
 					<?php
 						get_page($cur_page, $num_pages, -1, $min_ = 0, $printout_ = true);
 						get_centr($cur_page, $num_pages);
 						get_page($cur_page, $num_pages, 1, $min_ = 0, $printout_ = true);
 					?>
-
 				</ul>
 			</nav>
 		</div>
@@ -105,8 +118,6 @@
 		<hr>
 		
 	</div>
-
-	<script src="../bootstrap-4.5.3-dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

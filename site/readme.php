@@ -38,14 +38,8 @@
 			echo '</pre>';
 
 		?>			
-			
 
-		<hr>	
-
-		
+		<hr>			
 	</div>
-
-
-	<script src="../bootstrap-4.5.3-dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

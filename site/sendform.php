@@ -8,7 +8,7 @@
 </head>
 
 <body>
-	<?php 
+	<?php
 		include 'nav.html';
 		require_once 'start.php';
 		
@@ -68,27 +68,24 @@
 			$sucmsg = "Your message has been successfully sent!\n" . "Thank you for feedback";
 			$usucmsg = "Unfortunately there was an error at data sending!\n" . "Please try again later";
 
+
+			echo '<pre class="mb-0" style="white-space: pre-wrap;">';
+
 			if ($isok_msg) {
+
 				$value = $formdata + ['path' => $uploadfile];
+
 				
-				if (!db_add($link, $table, $fields, $value)) {
-					echo '<pre class="mb-0" style="white-space: pre-wrap;">';
-						echo("Adding in database failed");
-					echo '</pre>';			
-				}
-
-				echo '<pre class="mb-0" style="white-space: pre-wrap;">';
+				if (!db_add($link, $table, $fields, $value))
+					echo("Adding in database failed");
+				else
 					echo($sucmsg);
-				echo '</pre>';
-
-
 			}
+			else
+				echo($usucmsg);
+			
+			echo '</pre>';
 
-			else {
-				echo '<pre class="mb-0" style="white-space: pre-wrap;">';
-					echo($usucmsg);
-				echo '</pre>';
-			}
 
 			$link->close();
 
@@ -98,7 +95,5 @@
 		
 	</div>
 
-
-	<script src="../bootstrap-4.5.3-dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
