@@ -10,6 +10,7 @@
 <body>
 	<?php 
 		include 'nav.html';
+		include 'include.php';
 	?>
 	
 	<div class="container">
@@ -20,22 +21,8 @@
 
 		<?php
 
-			$file = fopen('../readme.md', "r");
-			$head = fgets($file);
-		    echo '<h5 class = "mb-2">';
-		    	echo $head;
-		    echo '</h5>';
-
-			$txt = "";
-			while (!feof($file)) {
-			    $txt .= fgets($file);	    
-			}
-
-		    fclose($file);
-
-		    echo '<pre class="my-0" style="white-space: pre-wrap;">';
-				echo $txt;
-			echo '</pre>';
+			$file = '../readme.md';
+			print_file($file, $header_mark);
 
 		?>			
 

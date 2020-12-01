@@ -10,6 +10,7 @@
 <body>
 	<?php 
 		include 'nav.html';
+		include 'include.php';
 	?>
 	
 	<div class="container">
@@ -20,38 +21,8 @@
 	
 		<?php
 
-			$header_mark = '#';
-
-			function print_head($head_, $mark_) {
-				echo '<h5 class = "mb-2">';
-			   		echo ltrim($head_, $mark_);
-				echo '</h5>';
-			}
-
-			function print_txt($txt_) {
-			    echo '<pre class="my-0" style="white-space: pre-wrap;">';
-				   	echo $txt_;
-				echo '</pre>';
-			}
-
-			$file = fopen('../comments.txt', "r");
-
-			$txt = "";
-			while (!feof($file)) {
-				$string = fgets($file);
-				if (strncmp($string, $header_mark, 1)) {
-					$txt .= $string;
-				}
-				else {
-					print_txt($txt);
-					$txt = "\n";
-					print_head($string, $header_mark);	
-				}
-					
-			}
-			print_txt($txt);
-
-		    fclose($file);
+			$file = '../comments.txt';
+			print_file($file, $header_mark);
 
 		?>	
 						

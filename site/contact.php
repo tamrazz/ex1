@@ -11,6 +11,7 @@
 
 	<?php 
 		include 'nav.html';
+		include 'include.php';
 	?>
 	
 	<div class="container">
@@ -60,7 +61,6 @@
 					<label for="in_country">Country</label>
 					<select name="in_country" class="form-control">
 						<?php 
-							require_once 'db_crud.php';
 							foreach ($countrys as $country) {
 								echo '<option>' . $country . '</option>';
 							}
