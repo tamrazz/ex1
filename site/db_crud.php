@@ -1,79 +1,152 @@
-<?php 
-	function db_connect($servername_, $user_, $pass_) {
-		$link_ = new mysqli($servername_, $user_, $pass_);
+<?php
+
+	$admin	= fopen('../admin.txt', "r");
+	$_user	= explode("=", fgets($admin));
+	$_pass	= explode("=", fgets($admin));
+	$_email	= explode("=", fgets($admin));  
+	fclose($admin);
+
+	$serv 	= "localhost";
+	$user 	= (strcmp("user", trim($_user[0]))) ? "": trim($_user[1]);
+	$pass 	= (strcmp("password", trim($_pass[0]))) ? "" : trim($_pass[1]);
+	$aemail	= (strcmp("email", trim($_email[0]))) ? "user@example.com" : trim($_email[1]);	
+
+	$dbname	= "feedback_db";
+	$tbname = "feedbacks";
+	$fields = array('id' => 'ID', 'fname' => 'First Name', 'lname' => 'Last Name', 'vocative' => 'Vocative', 
+		'email' => 'E-mail', 'country' => 'Country', 'city' => 'City', 'addr' => 'Address', 'msgtxt' => 'Messge', 'file' => 'File');
+	$f_keys = array_keys($fields);
+	$countrys = array('Not selected', 'Russia', 'USA', 'Germany', 'Norway');
+
+	$link = db_connect($serv, $user, $pass, $dbname);
+
+	function a2sql($array_, $q_) {
+		$sql_ = "(";
+		foreach ($array_ as $val_) {
+			$sql_ .= $q_ . $val_ . $q_ . ", ";
+		}
+		$sql_ = substr($sql_, 0, -2);
+		$sql_ .= ")";
+		return $sql_;
+	}
+
+	function db_connect($servername_, $user_, $pass_, $db_) {
+		$link_ = new mysqli($servername_, $user_, $pass_, $db_);
+		if ($link_->connect_errno == 1049)
+			$link_ = new mysqli($servername_, $user_, $pass_);
 		if ($link_->connect_error) {
+			echo '<pre class="mb-0" style="white-space: pre-wrap;">';
 			die("Connection failed: " . $link_->connect_error);
+			echo '</pre>';
 		}
 		return $link_;
 	}
 
-	function db_create($link_, $name_) {
+
+	function is_exist($db_, $table_) {
+		global $link;
+
+		$db_ex_ = false;
+		$tb_ex_ = false;
+
+		$sql_ = "SHOW DATABASES LIKE '" . $db_ . "'";
+		if (($res_ = $link->query($sql_)) !== false)
+			$db_ex_ = ($res_->num_rows > 0);
+
+		$sql_ = "SHOW TABLES LIKE '" . $table_ . "'";
+		if (($res_ = $link->query($sql_)) !== false)
+			$tb_ex_ = ($res_->num_rows > 0);
+
+		$ex_ = $db_ex_ && $tb_ex_;
+
+		return $ex_;
+	}
+
+
+
+	function db_create($name_) {
+		global $link;
 		$sql_ = "CREATE DATABASE IF NOT EXISTS " . $name_;
-		if ($link_->query($sql_) === FALSE) {
-			die("Error creating database: " . $link_->error);
+		if ($link->query($sql_) === FALSE) {
+			echo '<pre class="mb-0" style="white-space: pre-wrap;">';
+			die("Error creating database: " . $link->error);
+			echo '</pre>';
 		}
 	}
 
-	function table_create($link_, $db_name_, $table_, $fields_) {
-		$sql_ = "USE " . $db_name_ . ";";
-		if ($link_->query($sql_) === FALSE) {
-			die("Error selecting database: " . $link_->error);
+	function table_create($db_, $name_, $keys_) {
+		global $link, $countrys;
+		$sql_ = "USE " . $db_ . ";";
+		if ($link->query($sql_) === FALSE) {
+			echo '<pre class="mb-0" style="white-space: pre-wrap;">';
+			die("Error selecting database: " . $link->error);
+			echo '</pre>';
 		}
 
-		$sql_	 = 	"CREATE TABLE IF NOT EXISTS " . $table_;
-		$sql_	.=	" (id INT(6) NOT NULL AUTO_INCREMENT PRIMARY KEY, ";			// id
-		$sql_	.=	$fields_[0] . " VARCHAR(30) NOT NULL, "	;						// fname	
-		$sql_	.=	$fields_[1] . " VARCHAR(30) NOT NULL, "	;						// lname
-		$sql_	.=	$fields_[2] . " VARCHAR(4), "			;						// vocative
-		$sql_	.=	$fields_[3] . " VARCHAR(50) NOT NULL, "	;						// email
-		$sql_	.=	$fields_[4] . " VARCHAR(10), "			;						// country
-		$sql_	.=	$fields_[5] . " VARCHAR(30), "			;						// city
-		$sql_	.=	$fields_[6] . " VARCHAR(50), "			;						// addr
-		$sql_	.=	$fields_[7] . " MEDIUMTEXT, "			;						// msgtxt
-		$sql_	.=	$fields_[8] . " VARCHAR(100))"			;						// file
+		$sql_	 = 	"CREATE TABLE IF NOT EXISTS " . $name_ . " (";
 
-		if ($link_->query($sql_) === FALSE) {
-			die("Error creating table: " . $link_->error);
+		$sql_ .= $keys_[0] . " INT(6) NOT NULL AUTO_INCREMENT PRIMARY KEY, ";	// id
+		$sql_ .= $keys_[1] . " VARCHAR(30) NOT NULL, "						;	// fname	
+		$sql_ .= $keys_[2] . " VARCHAR(30) NOT NULL, "						;	// lname
+		$sql_ .= $keys_[3] . " VARCHAR(4), "								;	// vocative
+		$sql_ .= $keys_[4] . " VARCHAR(50) NOT NULL, "						;	// email
+		$sql_ .= $keys_[5] . " ENUM" . a2sql($countrys, '"') . ", "			;	// country
+		$sql_ .= $keys_[6] . " VARCHAR(30), "								;	// city
+		$sql_ .= $keys_[7] . " VARCHAR(50), "								;	// addr
+		$sql_ .= $keys_[8] . " MEDIUMTEXT, "								;	// msgtxt
+		$sql_ .= $keys_[9] . " VARCHAR(100))"								;	// file
+
+		if ($link->query($sql_) === FALSE) {
+			echo '<pre class="mb-0" style="white-space: pre-wrap;">';
+			die("Error creating table: " . $link->error);
+			echo '</pre>';
 		}
 	}
 
-	function db_add($link_, $table_, $fields_, $values_) {
-		function a2sql($array__, $q__) {
-			$tmp__ = "(";
-			foreach ($array__ as $val) {
-				$tmp__ .= $q__ . $val . $q__ . ", ";
-			}
-			$tmp__ = substr($tmp__, 0, -2);
-			$tmp__ .= ")";
-			return $tmp__;
+	function db_add($values_) {
+		global $dbname, $tbname, $f_keys, $link;
+		static $first_try_ = true;
+		static $res_ = false;
+
+		$sql_ = "INSERT INTO " . $tbname . " " . a2sql(array_slice($f_keys, 1), "") . " VALUES " . a2sql($values_, "'") ;
+		$res_ = ($link->query($sql_) === true);
+
+		if (!$res_ and $first_try_) {
+			$first_try_ = false;
+			db_create($dbname);
+			table_create($dbname, $tbname, $f_keys);
+			db_add($values_);
+			return $res_;
 		}
 
-		$sql_ = "INSERT INTO " . $table_ . " " . a2sql($fields_, "") . " VALUES " . a2sql($values_, "'") ;
-		$res_ = ($link_->query($sql_) === TRUE);
+		$first_try_ = true;
+		return $res_;
+	}
+
+	function db_read($start_, $num_) {
+		global $link, $dbname, $tbname;
+
+		$sql_ = "SELECT * FROM " . $tbname . " LIMIT " . $start_ . ', ' . $num_;
+		$res_ = false;
+
+		if (is_exist($dbname, $tbname))
+			$res_ = $link->query($sql_);
+
+		if ($res_ === false or $res_->num_rows == 0)
+			echo "Database is empty! ";
 
 		return $res_;
 	}
 
-	function db_read($link_, $table_, $start_, $num_)	{
-		$sql_ 	= "SELECT * FROM " . $table_ . " LIMIT " . $start_ . ', ' . $num_;
-
-		if (!($res_ = $link_->query($sql_))) {
-			echo "Wrong request or database is empty!";
-		}
-
-		return $res_;
-	}
-
-	function db_count($link_, $table_)	{
-		$sql_ 	= "SELECT id FROM " . $table_;
+	function db_count() {
+		global $tbname, $link;
+		$sql_	= "SELECT id FROM " . $tbname;
+		$rows_	= 0;
 		
-		if ($res_ = $link_->query($sql_)) {
+		if ($res_ = $link->query($sql_))
 			$rows_ = $res_->num_rows;
-			$res_->close();
-		}
 
 		return $rows_;	
 	}
-
 
 ?>

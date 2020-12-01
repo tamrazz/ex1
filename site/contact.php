@@ -11,7 +11,6 @@
 
 	<?php 
 		include 'nav.html';
-		require_once 'start.php';
 	?>
 	
 	<div class="container">
@@ -60,10 +59,12 @@
 				<div class="form-group col-md-2">
 					<label for="in_country">Country</label>
 					<select name="in_country" class="form-control">
-						<option selected value="">Choose...</option>
-						<option>Russia</option>
-						<option>USA</option>
-						<option>Germany</option>
+						<?php 
+							require_once 'db_crud.php';
+							foreach ($countrys as $country) {
+								echo '<option>' . $country . '</option>';
+							}
+						?>
 					</select>
 				</div>
 				<div class="form-group col-md-4">

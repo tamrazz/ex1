@@ -10,7 +10,6 @@
 <body>
 	<?php 
 		include 'nav.html';
-		require_once 'start.php';
 	?>
 	
 	<div class="container">
@@ -24,9 +23,10 @@
 			$file = fopen('../exercise.txt', "r");
 			$head = fgets($file);
 		    echo '<h5 class = "mb-2">';
-			    	echo $head;
+			    echo $head;
 			echo '</h5>';
 
+			$txt = "";
 			while (!feof($file)) {
 			    $txt .= fgets($file);	    
 			}
@@ -38,7 +38,7 @@
 			echo '</pre>';
 
 		?>	
-						
+
 		<hr>	
 	</div>
 </body>

@@ -8,9 +8,9 @@
 </head>
 
 <body>
+
 	<?php 
 		include 'nav.html';
-		require_once 'start.php';
 		require_once 'db_crud.php';
 	?>
 	
@@ -22,15 +22,55 @@
 
 		<?php
 			$rows_per_page = 10;
-			$total_rows = db_count($link, $table);
-			$num_pages = ceil($total_rows / $rows_per_page);
+			$total_rows = db_count();
+			$num_pages = ($total_rows > 0) ? ceil($total_rows / $rows_per_page) : 1;
 			$cur_page = get_curpage($num_pages);
 			$db_start = ($cur_page - 1) * $rows_per_page;
-			$print_fields = array('id', $fields[0], $fields[1], $fields[3], $fields[7], $fields[8]);
-			$cols = count($print_fields);
+			$print_tabkeys = ['id', 'fname', 'lname', 'email', 'msgtxt', 'file'];
+
+			function show_file($path_) {
+
+				if (empty($path_))
+					$res_ = 'No file attached';
+				else
+					if (file_exists($path_)) {
+						$finfo_ = new finfo(FILEINFO_MIME_TYPE);
+						$tinfo_ = $finfo_->file($path_);
+						$type_ = explode("/", $tinfo_);
+						switch ($type_[0]) {
+
+							case 'text':
+								$txtfile_ = fopen($path_, 'r');
+								$txt_ = '';
+								while (!feof($txtfile_)) {
+									$txt_ .= fgets($txtfile_);	    
+								}
+								fclose($txtfile_);
+								$res_ = 	'<p><a data-toggle="collapse" href="#' . $path_ . '" aria-expanded="false" aria-controls="footwear">Attached text file</a></p>' .
+											'<div class="collapse" id="' . $path_ . '">' .
+											'<pre class="my-0" style="white-space: pre-wrap;">' .	$txt_ . '</pre> </div>';
+								break;
+
+							case 'image':
+								$img_ = '<img src="' . $path_ . '" alt="Warning: Load image failed!">';
+
+								$res_ = 	'<p><a data-toggle="collapse" href="#' . $path_ . '" aria-expanded="false" aria-controls="footwear">Attached picture</a></p>' .
+											'<div class="collapse" id="' . $path_ . '">' . $img_. '</div>';
+								break;
+
+							default:
+								$res_ = $path_;
+						}
+						unset($finfo_);
+					}
+					else
+						$res_ = "Warning: Can't find file " . $path_ ;
+				echo $res_;
+			}
 
 			function get_curpage($max_, $min_ = 1) {
-				$my_get = $_GET['page'];
+
+				$my_get = (empty($_GET)) ? 1 : $_GET['page'];				
 
 				if ($my_get == NULL)
 					$cur_page_ = $min_;
@@ -78,27 +118,33 @@
 			<thead class="thead-dark" align="center">
 				<tr>
 					<?php
-						for($i = 0; $i < $cols; $i++) {
+						foreach ($print_tabkeys as $val) {
 							echo '<th scope="col">';
-								echo $print_fields[$i];
+								echo $fields[$val];
 							echo '</th>';
+
 						}
 					?>
 				</tr>
 			</thead>
 
 			<?php 
-				$rows_readed = db_read($link, $table, $db_start, $rows_per_page);
-				while($row = $rows_readed->fetch_assoc()) {
-					echo '<tr>'	;
-						for($i = 0; $i < $cols; $i++) {
-							echo '<th class="font-weight-normal">';
-								echo $row[$print_fields[$i]];
-							echo '</th>';
-						}
-					echo '</tr>';
+				$rows_readed = db_read($db_start, $rows_per_page);
+				if ($rows_readed !== false) {
+					while($row = $rows_readed->fetch_assoc()) {
+						echo '<tr>'	;
+							foreach ($print_tabkeys as $val) {
+								echo '<th class="font-weight-normal">';
+									if ($val == 'file')
+										show_file($row[$val]);
+									else
+										echo $row[$val];
+								echo '</th>';
+							}
+						echo '</tr>';
+					}
+					$rows_readed->free();
 				}
-				$rows_readed->close();
 			?>
 		</table>
 
@@ -118,6 +164,10 @@
 		<hr>
 		
 	</div>
+
+
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
 </body>
 </html>

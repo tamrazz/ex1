@@ -10,7 +10,6 @@
 <body>
 	<?php 
 		include 'nav.html';
-		require_once 'start.php';
 	?>
 	
 	<div class="container">
@@ -21,9 +20,11 @@
 	
 		<?php
 
-			function print_head($head_) {
+			$header_mark = '#';
+
+			function print_head($head_, $mark_) {
 				echo '<h5 class = "mb-2">';
-			   		echo ltrim($head_, ">");
+			   		echo ltrim($head_, $mark_);
 				echo '</h5>';
 			}
 
@@ -35,16 +36,18 @@
 
 			$file = fopen('../comments.txt', "r");
 
+			$txt = "";
 			while (!feof($file)) {
 				$string = fgets($file);
-				if ($string[0] == ">") {
+				if (strncmp($string, $header_mark, 1)) {
+					$txt .= $string;
+				}
+				else {
 					print_txt($txt);
 					$txt = "\n";
-					print_head($string);			
+					print_head($string, $header_mark);	
 				}
-
-				else
-					$txt .= $string;
+					
 			}
 			print_txt($txt);
 
